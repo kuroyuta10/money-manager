@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>金勘定</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #fff8f0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .card {
+            background: #fff;
+            border: 2px solid #ffcc99;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1, h2 {
+            color: #ff8c42;
+        }
+
+        input, button {
+            margin: 5px;
+            padding: 8px;
+        }
+
+        .transaction {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+            padding: 6px 0;
+        }
+
+        .income {
+            color: green;
+        }
+
+        .expense {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>お金の管理アプリ</h1>
+
+    <div class="card">
+        <h2>全財産: ¥{{ data.current_money }}</h2>
+    </div>
+    
+        
+
+    <div class="card">
+        <h2>入金</h2>
+        <form method="post">
+            <input type="hidden" name="action" value="add_income">
+            <input type="text" name="item" placeholder="入金の内容">
+            <input type="number" name="amount" placeholder="金額">
+            <button type="submit">入金する</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>出金</h2>
+        <form method="post">
+            <input type="hidden" name="action" value="add_expense">
+            <input type="text" name="item" placeholder="出金の内容">
+            <input type="number" name="amount" placeholder="金額">
+            <button type="submit">出金する</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>今月の入出金一覧</h2>
+        {% for t in data.transactions %}
+            <div class="transaction">
+                <div>
+                    {{ t.item }}: ¥{{ t.amount }}
+                    {% if t.type == "income" %}
+                        <span class="income">（入金）</span>
+                    {% else %}
+                        <span class="expense">（出金）</span>
+                    {% endif %}
+                </div>
+                <form method="post" style="margin: 0;">
+                    <input type="hidden" name="action" value="delete_transaction">
+                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                    <button type="submit">削除</button>
+                </form>
+            </div>
+        {% endfor %}
+        <p><strong>今月の合計出費:</strong> ¥{{ total_spent }}</p>
+    </div>
+
+    <div class="card">
+        <h2>来月以降に使う予定のお金</h2>
+        <form method="post">
+            <input type="hidden" name="action" value="add_future">
+            <input type="text" name="future_item" placeholder="用途">
+            <input type="number" name="future_amount" placeholder="金額">
+            <button type="submit">追加</button>
+        </form>
+        <ul>
+            {% for f in data.future_expenses %}
+                <li>{{ f.item }}: ¥{{ f.amount }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>その他のメモ</h2>
+        <form method="post">
+            <input type="hidden" name="action" value="add_note">
+            <input type="text" name="note" placeholder="メモを入力">
+            <button type="submit">追加</button>
+        </form>
+        <ul>
+            {% for note in data.notes %}
+                <li>{{ note }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+</body>
+</html>
